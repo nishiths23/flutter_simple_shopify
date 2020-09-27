@@ -14,10 +14,10 @@ query getFeaturedCollectionQuery($query: String!){
           id
           originalSrc
         }
-        products(first: 250) {
+        products(first: 20) {
           edges {
             node {
-              variants(first: 250) {
+              variants(first: 1) {
                 edges {
                   node {
                     title
@@ -43,7 +43,7 @@ query getFeaturedCollectionQuery($query: String!){
                 }
               }
               availableForSale
-              collections(first: 250) {
+              collections(first: 1) {
                 edges {
                   node {
                     description
@@ -75,6 +75,7 @@ query getFeaturedCollectionQuery($query: String!){
               tags
               title
               updatedAt
+              vendor
             }
             cursor
           }

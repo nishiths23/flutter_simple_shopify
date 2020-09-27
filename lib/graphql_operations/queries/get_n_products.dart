@@ -7,6 +7,11 @@ query($n : Int, $sortKey : ProductSortKeys, $reverse: Boolean){
     edges {
       cursor
       node {
+      options(first: 50) {
+            id
+            name
+            values
+            } 
         variants(first: 250) {
           edges {
             node {
@@ -60,6 +65,7 @@ query($n : Int, $sortKey : ProductSortKeys, $reverse: Boolean){
         tags
         title
         updatedAt
+        vendor
         images(first: 250) {
           edges {
             node {

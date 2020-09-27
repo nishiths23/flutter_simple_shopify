@@ -1,12 +1,17 @@
 const String getXProductsAfterCursorQuery = r'''
-query($cursor : String, $x : Int){
-  products(first: $x, after: $cursor) {
+query($cursor : String, $x : Int, $reverse: Boolean, $sortKey: ProductSortKeys){
+  products(first: $x, after: $cursor, sortKey: $sortKey, reverse: $reverse) {
     pageInfo {
       hasNextPage
     }
     edges {
       cursor
       node {
+      options(first: 50) {
+            id
+            name
+            values
+            } 
         variants(first: 250) {
           edges {
             node {
@@ -30,6 +35,7 @@ query($cursor : String, $x : Int){
               availableForSale
               sku
               requiresShipping
+              
             }
           }
           pageInfo {
@@ -60,6 +66,7 @@ query($cursor : String, $x : Int){
         tags
         title
         updatedAt
+        vendor
         images(first: 250) {
           edges {
             node {

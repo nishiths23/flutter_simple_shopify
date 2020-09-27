@@ -1,5 +1,5 @@
-import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter_simple_shopify/enums/src/sort_key_order.dart';
+import 'package:flutter_simple_shopify/graphql_operations/mutations/checkout_shipping_address_update.dart';
 import 'package:flutter_simple_shopify/graphql_operations/mutations/create_checkout.dart';
 import 'package:flutter_simple_shopify/graphql_operations/queries/get_checkout_info_requires_shipping.dart';
 import 'package:flutter_simple_shopify/graphql_operations/queries/get_checkout_without_shipping_rates.dart';
@@ -36,7 +36,7 @@ class ShopifyCheckout with ShopifyError{
     QueryResult result = await _graphQLClient.query(_optionsRequireShipping);
     print((result?.data as LazyCacheMap)?.data);
     final WatchQueryOptions _options =
-    WatchQueryOptions(documentNode: gql(requiresShipping(result) == true ? getCheckoutInfo : getCheckoutInfoWithoutShipping), variables: {
+    WatchQueryOptions(documentNode: gql(_requiresShipping(result) == true ? getCheckoutInfo : getCheckoutInfoWithoutShipping), variables: {
       'id': checkoutId,
     });
     final QueryResult _queryResult = (await _graphQLClient.query(_options));
@@ -48,20 +48,20 @@ class ShopifyCheckout with ShopifyError{
         _queryResult?.data['node']);
   }
 
-  bool requiresShipping(QueryResult result){
+  bool _requiresShipping(QueryResult result){
     return ((result?.data ?? const {})['node'] ?? const {})['requiresShipping'];
   }
 
   /// Returns all [Order] in a List of Orders.
   ///
   /// Returns a List of Orders from the Customer with the [customerAccessToken].
-  Future<List<Order>> getAllOrders(String customerAccessToken, SortKeyOrder sortKey, {bool deleteThisPartOfCache = false}) async {
-
+  Future<List<Order>> getAllOrders(String customerAccessToken,
+      { SortKeyOrder sortKey = SortKeyOrder.RELEVANCE, bool deleteThisPartOfCache = false}) async {
       final QueryOptions _options = WatchQueryOptions(
           documentNode: gql(getAllOrdersQuery),
           variables: {
             'accessToken': customerAccessToken,
-            'sortKey': EnumToString.parse(sortKey)
+            'sortKey': sortKey.parseToString()
           }
       );
       final QueryResult result = await ShopifyConfig.graphQLClient.query(_options);
@@ -84,6 +84,43 @@ class ShopifyCheckout with ShopifyError{
       'checkoutId': checkoutId,
       'checkoutLineItems': checkoutLineItems,
     });
+    final QueryResult result = await _graphQLClient.mutate(_options);
+    checkForError(result);
+    if(deleteThisPartOfCache) {
+      _graphQLClient.cache.write(_options.toKey(), null);
+    }
+  }
+
+  /// Updates the shipping address on given [checkoutId]
+  Future<void> shippingAddressUpdate(
+      String checkoutId,
+      String address1,
+      String address2,
+      String company,
+      String city,
+      String country,
+      String firstName,
+      String lastName,
+      String phone,
+      String province,
+      String zip,
+      {bool deleteThisPartOfCache = false}
+      ) async {
+    final MutationOptions _options = MutationOptions(
+        documentNode: gql(checkoutShippingAddressUpdateMutation),
+        variables: {
+          'checkoutId': checkoutId,
+          'address1': address1,
+          'address2': address2,
+          'company': company,
+          'city': city,
+          'country': country,
+          'firstName': firstName,
+          'lastName': lastName,
+          'phone': phone,
+          'province': province,
+          'zip': zip
+        });
     final QueryResult result = await _graphQLClient.mutate(_options);
     checkForError(result);
     if(deleteThisPartOfCache) {

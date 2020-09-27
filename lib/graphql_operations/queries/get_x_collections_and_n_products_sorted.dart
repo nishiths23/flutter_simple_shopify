@@ -1,6 +1,6 @@
-const String getAllCollectionsQuery = r'''
-query($cursor: String, $sortKey: CollectionSortKeys, $reverse: Boolean){
-  collections(first: 250, after: $cursor, sortKey: $sortKey, reverse: $reverse) {
+const String getXCollectionsAndNProductsSortedQuery = r'''
+query($cursor: String, $sortKey: CollectionSortKeys, $sortKeyProduct: ProductCollectionSortKeys, $reverse: Boolean, $x: Int, $n: Int){
+  collections(first: $x, after: $cursor, sortKey: $sortKey, reverse: $reverse) {
   pageInfo{
     hasNextPage
   }
@@ -18,7 +18,7 @@ query($cursor: String, $sortKey: CollectionSortKeys, $reverse: Boolean){
           id
           originalSrc
         }
-        products(first: 250) {
+        products(first: $n, sortKey: $sortKeyProduct) {
           edges {
             node {
               variants(first: 250) {
@@ -47,18 +47,6 @@ query($cursor: String, $sortKey: CollectionSortKeys, $reverse: Boolean){
                 }
               }
               availableForSale
-              collections(first: 250) {
-                edges {
-                  node {
-                    description
-                    descriptionHtml
-                    id
-                    handle
-                    title
-                    updatedAt
-                  }
-                }
-              }
               createdAt
               description
               descriptionHtml

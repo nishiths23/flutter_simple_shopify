@@ -7,6 +7,11 @@ query($cursor : String){
     edges {
       cursor
       node {
+      options(first: 50) {
+            id
+            name
+            values
+            } 
         variants(first: 250) {
           edges {
             node {
@@ -60,6 +65,7 @@ query($cursor : String){
         tags
         title
         updatedAt
+        vendor
         images(first: 250) {
           edges {
             node {
